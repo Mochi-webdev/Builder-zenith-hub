@@ -13,7 +13,7 @@ import CharacterCard from "@/components/game/CharacterCard";
 import Tutorial from "@/components/game/Tutorial";
 import TrophyDisplay from "@/components/game/TrophyDisplay";
 import ChestDisplay from "@/components/game/ChestDisplay";
-import CardCollectionDisplay from "@/components/game/CardCollection";
+import EnhancedCardCollection from "@/components/game/EnhancedCardCollection";
 import ProgressMenu from "@/components/game/ProgressMenu";
 import CurrencyDisplay from "@/components/game/CurrencyDisplay";
 import BackgroundMusic from "@/components/BackgroundMusic";
@@ -109,7 +109,31 @@ export default function Home() {
           </div>
           <div className="flex gap-3">
             <ProgressMenu />
-            <CardCollectionDisplay />
+            <EnhancedCardCollection
+              currentDeck={selectedDeck}
+              onDeckChange={(newDeck) => {
+                // Update selected deck when changed from collection
+                newDeck.forEach((characterId) => {
+                  const character = characters.find(
+                    (c) => c.id === characterId,
+                  );
+                  if (character && !isCharacterSelected(characterId)) {
+                    toggleCharacter(character);
+                  }
+                });
+                // Remove characters not in new deck
+                selectedDeck.forEach((characterId) => {
+                  if (!newDeck.includes(characterId)) {
+                    const character = characters.find(
+                      (c) => c.id === characterId,
+                    );
+                    if (character) {
+                      toggleCharacter(character);
+                    }
+                  }
+                });
+              }}
+            />
             <ChestDisplay />
           </div>
         </div>

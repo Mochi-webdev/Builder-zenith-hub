@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { characters, Character } from "@/lib/characters";
+import {
+  characters,
+  Character,
+  getUnlockedCharacters,
+  isCharacterUnlocked,
+} from "@/lib/characters";
 import CharacterCard from "@/components/game/CharacterCard";
 import Tutorial from "@/components/game/Tutorial";
 import TrophyDisplay from "@/components/game/TrophyDisplay";
 import ChestDisplay from "@/components/game/ChestDisplay";
 import CardCollectionDisplay from "@/components/game/CardCollection";
+import ProgressMenu from "@/components/game/ProgressMenu";
+import CurrencyDisplay from "@/components/game/CurrencyDisplay";
 import BackgroundMusic from "@/components/BackgroundMusic";
 import { useCharacterSelection } from "@/hooks/useCharacterSelection";
+import { trophyManager } from "@/lib/trophySystem";
+import { chestManager } from "@/lib/chestSystem";
 import { cn } from "@/lib/utils";
 import {
   Swords,
@@ -20,11 +29,17 @@ import {
   Sparkles,
   Flame,
   Trophy,
+  Lock,
 } from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<"all" | "deck">("all");
+  const [viewMode, setViewMode] = useState<"unlocked" | "locked" | "deck">(
+    "unlocked",
+  );
+  const [currentTrophies, setCurrentTrophies] = useState(0);
+  const [unlockedCharacters, setUnlockedCharacters] = useState<Character[]>([]);
+  const [lockedCharacters, setLockedCharacters] = useState<Character[]>([]);
 
   const {
     selectedDeck,
@@ -36,15 +51,50 @@ export default function Home() {
     isCharacterSelected,
   } = useCharacterSelection({ maxDeckSize: 4 });
 
+  useEffect(() => {
+    updateCharacterLists();
+    const interval = setInterval(updateCharacterLists, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const updateCharacterLists = () => {
+    const trophyData = trophyManager.getTrophyData();
+    const unlockedFromChests = chestManager.getUnlockedCharacterIds();
+
+    setCurrentTrophies(trophyData.trophies);
+    setUnlockedCharacters(
+      getUnlockedCharacters(trophyData.trophies, unlockedFromChests),
+    );
+    setLockedCharacters(
+      characters.filter(
+        (char) =>
+          !isCharacterUnlocked(char, trophyData.trophies, unlockedFromChests),
+      ),
+    );
+  };
+
   const startGame = () => {
     if (isDeckComplete) {
       navigate("/game", { state: { deck: selectedDeck } });
     }
   };
 
-  const selectedCharacters = characters.filter((c) =>
+  const selectedCharacters = unlockedCharacters.filter((c) =>
     selectedDeck.includes(c.id),
   );
+
+  const getViewModeCharacters = () => {
+    switch (viewMode) {
+      case "unlocked":
+        return unlockedCharacters;
+      case "locked":
+        return lockedCharacters;
+      case "deck":
+        return selectedCharacters;
+      default:
+        return unlockedCharacters;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -53,8 +103,12 @@ export default function Home() {
       {/* Top UI Elements */}
       <div className="absolute top-4 left-4 right-4 z-10">
         <div className="flex items-start justify-between">
-          <TrophyDisplay size="lg" />
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <TrophyDisplay size="lg" />
+            <CurrencyDisplay size="md" />
+          </div>
+          <div className="flex gap-3">
+            <ProgressMenu />
             <CardCollectionDisplay />
             <ChestDisplay />
           </div>
@@ -128,12 +182,21 @@ export default function Home() {
 
             <div className="flex gap-2">
               <Button
-                variant={viewMode === "all" ? "default" : "outline"}
-                onClick={() => setViewMode("all")}
+                variant={viewMode === "unlocked" ? "default" : "outline"}
+                onClick={() => setViewMode("unlocked")}
                 size="sm"
                 className="glass-effect"
               >
-                All Characters
+                Unlocked ({unlockedCharacters.length})
+              </Button>
+              <Button
+                variant={viewMode === "locked" ? "default" : "outline"}
+                onClick={() => setViewMode("locked")}
+                size="sm"
+                className="glass-effect"
+              >
+                <Lock className="w-4 h-4 mr-1" />
+                Locked ({lockedCharacters.length})
               </Button>
               <Button
                 variant={viewMode === "deck" ? "default" : "outline"}
@@ -141,7 +204,7 @@ export default function Home() {
                 size="sm"
                 className="glass-effect"
               >
-                My Deck
+                My Deck ({deckSize})
               </Button>
             </div>
           </div>
@@ -190,24 +253,64 @@ export default function Home() {
           <div className="flex items-center gap-3 mb-6">
             <Sparkles className="w-6 h-6 text-purple-400" />
             <h2 className="text-2xl font-bold text-white">
-              {viewMode === "all" ? "Choose Your Warriors" : "Your Deck"}
+              {viewMode === "unlocked"
+                ? "Choose Your Warriors"
+                : viewMode === "locked"
+                  ? "Locked Characters"
+                  : "Your Deck"}
             </h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {(viewMode === "all" ? characters : selectedCharacters).map(
-              (character) => (
-                <CharacterCard
-                  key={character.id}
-                  character={character}
-                  size="lg"
-                  onClick={() => toggleCharacter(character)}
-                  isSelected={isCharacterSelected(character.id)}
-                  showStats={true}
-                />
-              ),
-            )}
+            {getViewModeCharacters().map((character) => {
+              const isUnlocked = unlockedCharacters.includes(character);
+              const unlockReq = character.unlockRequirement;
+
+              return (
+                <div key={character.id} className="relative">
+                  <CharacterCard
+                    character={character}
+                    size="lg"
+                    onClick={() =>
+                      isUnlocked ? toggleCharacter(character) : null
+                    }
+                    isSelected={isCharacterSelected(character.id)}
+                    showStats={true}
+                    canAfford={isUnlocked}
+                  />
+
+                  {/* Lock overlay for locked characters */}
+                  {!isUnlocked && (
+                    <div className="absolute inset-0 bg-black/70 rounded-lg flex flex-col items-center justify-center backdrop-blur-sm">
+                      <Lock className="w-8 h-8 text-white/70 mb-2" />
+                      <div className="text-center text-white/70 text-sm px-2">
+                        {unlockReq?.trophies && (
+                          <p>🏆 {unlockReq.trophies} trophies</p>
+                        )}
+                        {unlockReq?.chest && <p>📦 Find in chests</p>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {/* Empty state messages */}
+          {getViewModeCharacters().length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">
+                {viewMode === "locked" ? "🔒" : "📦"}
+              </div>
+              <p className="text-white/70 text-lg">
+                {viewMode === "locked"
+                  ? "All characters unlocked! Great job!"
+                  : viewMode === "deck"
+                    ? "Select characters for your deck"
+                    : "No characters available"}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Game Features */}

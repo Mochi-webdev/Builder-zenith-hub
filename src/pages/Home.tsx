@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { characters, Character } from "@/lib/characters";
 import CharacterCard from "@/components/game/CharacterCard";
+import Tutorial from "@/components/game/Tutorial";
 import { useCharacterSelection } from "@/hooks/useCharacterSelection";
 import { cn } from "@/lib/utils";
 import {
@@ -72,19 +73,22 @@ export default function Home() {
           <p className="text-xl text-white/80 mb-4">
             Epic battles with legendary anime warriors
           </p>
-          <div className="flex items-center justify-center gap-8 text-white/60">
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5" />
-              <span>3D Combat</span>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-8 text-white/60">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5" />
+                <span>3D Combat</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                <span>Iconic Heroes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5" />
+                <span>Real-time Strategy</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              <span>Iconic Heroes</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5" />
-              <span>Real-time Strategy</span>
-            </div>
+            <Tutorial />
           </div>
         </div>
 

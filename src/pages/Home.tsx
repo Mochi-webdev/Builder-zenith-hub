@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { characters, Character } from "@/lib/characters";
 import CharacterCard from "@/components/game/CharacterCard";
+import { useCharacterSelection } from "@/hooks/useCharacterSelection";
 import { cn } from "@/lib/utils";
 import {
   Swords,
@@ -18,24 +19,20 @@ import {
 
 export default function Home() {
   const navigate = useNavigate();
-  const [selectedDeck, setSelectedDeck] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"all" | "deck">("all");
 
-  const maxDeckSize = 4;
-
-  const toggleCharacterInDeck = (character: Character) => {
-    setSelectedDeck((prev) => {
-      if (prev.includes(character.id)) {
-        return prev.filter((id) => id !== character.id);
-      } else if (prev.length < maxDeckSize) {
-        return [...prev, character.id];
-      }
-      return prev;
-    });
-  };
+  const {
+    selectedDeck,
+    toggleCharacter,
+    isDeckComplete,
+    remainingSlots,
+    deckSize,
+    maxDeckSize,
+    isCharacterSelected,
+  } = useCharacterSelection({ maxDeckSize: 4 });
 
   const startGame = () => {
-    if (selectedDeck.length === maxDeckSize) {
+    if (isDeckComplete) {
       navigate("/game", { state: { deck: selectedDeck } });
     }
   };
@@ -97,17 +94,15 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold text-white">Build Your Deck</h2>
               <Badge
-                variant={
-                  selectedDeck.length === maxDeckSize ? "default" : "outline"
-                }
+                variant={isDeckComplete ? "default" : "outline"}
                 className={cn(
                   "px-3 py-1",
-                  selectedDeck.length === maxDeckSize
+                  isDeckComplete
                     ? "bg-green-500/20 text-green-400 border-green-500"
                     : "border-purple-500/50 text-purple-400",
                 )}
               >
-                {selectedDeck.length}/{maxDeckSize}
+                {deckSize}/{maxDeckSize}
               </Badge>
             </div>
 
@@ -132,7 +127,7 @@ export default function Home() {
           </div>
 
           {/* Selected Deck Preview */}
-          {selectedDeck.length > 0 && (
+          {deckSize > 0 && (
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-white mb-3">
                 Selected Characters:
@@ -143,7 +138,7 @@ export default function Home() {
                     key={character.id}
                     character={character}
                     size="sm"
-                    onClick={() => toggleCharacterInDeck(character)}
+                    onClick={() => toggleCharacter(character)}
                     isSelected={true}
                     showStats={false}
                   />
@@ -156,15 +151,15 @@ export default function Home() {
           <div className="text-center">
             <Button
               onClick={startGame}
-              disabled={selectedDeck.length !== maxDeckSize}
+              disabled={!isDeckComplete}
               className="anime-button text-lg px-8 py-3 font-bold"
             >
-              {selectedDeck.length === maxDeckSize ? (
+              {isDeckComplete ? (
                 <>
                   Start Battle <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               ) : (
-                <>Select {maxDeckSize - selectedDeck.length} more characters</>
+                <>Select {remainingSlots} more characters</>
               )}
             </Button>
           </div>
@@ -186,8 +181,8 @@ export default function Home() {
                   key={character.id}
                   character={character}
                   size="lg"
-                  onClick={() => toggleCharacterInDeck(character)}
-                  isSelected={selectedDeck.includes(character.id)}
+                  onClick={() => toggleCharacter(character)}
+                  isSelected={isCharacterSelected(character.id)}
                   showStats={true}
                 />
               ),

@@ -7,12 +7,14 @@ import {
   Sphere,
 } from "@react-three/drei";
 import { Suspense, useRef, useMemo } from "react";
-import { GameUnit } from "@/lib/gameLogic";
+import { GameUnit, Tower } from "@/lib/gameLogic";
 import * as THREE from "three";
 
 interface BattleArenaProps {
   playerUnits: GameUnit[];
   enemyUnits: GameUnit[];
+  playerTowers: Tower[];
+  enemyTowers: Tower[];
   onArenaClick: (position: { x: number; z: number }) => void;
 }
 
@@ -200,69 +202,110 @@ function ArenaFloor({
   );
 }
 
-function Tower({
-  position,
-  health,
-  maxHealth,
-  isPlayer,
-}: {
-  position: [number, number, number];
-  health: number;
-  maxHealth: number;
-  isPlayer: boolean;
-}) {
-  const healthPercentage = health / maxHealth;
+function TowerComponent({ tower }: { tower: Tower }) {
+  const healthPercentage = tower.health / tower.maxHealth;
+  const isPlayer = tower.id.includes("player");
   const color = isPlayer ? "#00b894" : "#e17055";
 
+  // Different sizes for different tower types
+  const isKing = tower.type === "king";
+  const baseSize = isKing ? 2.5 : 2;
+  const height = isKing ? 4 : 3;
+
   return (
-    <group position={position}>
+    <group position={[tower.position.x, tower.position.y, tower.position.z]}>
       {/* Tower Base */}
-      <Box args={[2, 0.5, 2]} position={[0, 0.25, 0]}>
-        <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
+      <Box args={[baseSize, 0.5, baseSize]} position={[0, 0.25, 0]}>
+        <meshStandardMaterial
+          color={tower.isDestroyed ? "#666666" : color}
+          metalness={0.5}
+          roughness={0.3}
+        />
       </Box>
 
       {/* Tower Body */}
-      <Box args={[1.5, 3, 1.5]} position={[0, 2, 0]}>
+      <Box
+        args={[baseSize * 0.8, height, baseSize * 0.8]}
+        position={[0, height / 2 + 0.5, 0]}
+      >
         <meshStandardMaterial
-          color={color}
+          color={tower.isDestroyed ? "#666666" : color}
           metalness={0.3}
           roughness={0.4}
-          emissive={color}
-          emissiveIntensity={0.1}
+          emissive={tower.isDestroyed ? "#000000" : color}
+          emissiveIntensity={tower.isDestroyed ? 0 : 0.1}
         />
       </Box>
 
+      {/* King Tower Crown */}
+      {isKing && !tower.isDestroyed && (
+        <Box args={[0.5, 0.5, 0.5]} position={[0, height + 1, 0]}>
+          <meshStandardMaterial
+            color="#FFD700"
+            metalness={0.8}
+            roughness={0.2}
+          />
+        </Box>
+      )}
+
       {/* Tower Health Bar */}
-      <Box args={[2, 0.2, 0.1]} position={[0, 4, 0]}>
-        <meshBasicMaterial color="#333333" />
-      </Box>
-      <Box
-        args={[2 * healthPercentage, 0.15, 0.08]}
-        position={[-(2 - 2 * healthPercentage) / 2, 4, 0.01]}
-      >
-        <meshBasicMaterial
-          color={
-            healthPercentage > 0.5
-              ? "#00ff00"
-              : healthPercentage > 0.25
-                ? "#ffff00"
-                : "#ff0000"
-          }
-        />
-      </Box>
+      {!tower.isDestroyed && (
+        <>
+          <Box args={[baseSize, 0.2, 0.1]} position={[0, height + 1.5, 0]}>
+            <meshBasicMaterial color="#333333" />
+          </Box>
+          <Box
+            args={[baseSize * healthPercentage, 0.15, 0.08]}
+            position={[
+              -(baseSize - baseSize * healthPercentage) / 2,
+              height + 1.5,
+              0.01,
+            ]}
+          >
+            <meshBasicMaterial
+              color={
+                healthPercentage > 0.5
+                  ? "#00ff00"
+                  : healthPercentage > 0.25
+                    ? "#ffff00"
+                    : "#ff0000"
+              }
+            />
+          </Box>
+        </>
+      )}
 
       {/* Tower Name */}
       <Text
-        position={[0, 5, 0]}
-        fontSize={0.4}
-        color="white"
+        position={[0, height + 2, 0]}
+        fontSize={0.3}
+        color={tower.isDestroyed ? "#666666" : "white"}
         anchorX="center"
         anchorY="middle"
         outlineWidth={0.02}
         outlineColor="black"
       >
-        {isPlayer ? "PLAYER" : "ENEMY"}
+        {isKing
+          ? isPlayer
+            ? "KING"
+            : "ENEMY KING"
+          : tower.type === "left"
+            ? "LEFT"
+            : "RIGHT"}
       </Text>
+
+      {/* Destroyed Effect */}
+      {tower.isDestroyed && (
+        <Text
+          position={[0, height / 2, 0]}
+          fontSize={0.5}
+          color="#ff0000"
+          anchorX="center"
+          anchorY="middle"
+        >
+          💥
+        </Text>
+      )}
     </group>
   );
 }
@@ -270,6 +313,8 @@ function Tower({
 export default function BattleArena({
   playerUnits,
   enemyUnits,
+  playerTowers,
+  enemyTowers,
   onArenaClick,
 }: BattleArenaProps) {
   return (
@@ -298,19 +343,15 @@ export default function BattleArena({
           {/* Arena Floor */}
           <ArenaFloor onClick={onArenaClick} />
 
-          {/* Towers */}
-          <Tower
-            position={[0, 0, -11]}
-            health={2000}
-            maxHealth={2000}
-            isPlayer={true}
-          />
-          <Tower
-            position={[0, 0, 11]}
-            health={2000}
-            maxHealth={2000}
-            isPlayer={false}
-          />
+          {/* Player Towers */}
+          {playerTowers.map((tower) => (
+            <TowerComponent key={tower.id} tower={tower} />
+          ))}
+
+          {/* Enemy Towers */}
+          {enemyTowers.map((tower) => (
+            <TowerComponent key={tower.id} tower={tower} />
+          ))}
 
           {/* Player Units */}
           {playerUnits.map((unit) => (

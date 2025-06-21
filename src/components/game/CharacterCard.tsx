@@ -22,6 +22,7 @@ interface CharacterCardProps {
   onClick?: () => void;
   showStats?: boolean;
   size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 const getElementIcon = (element: Character["element"]) => {
@@ -80,6 +81,7 @@ export default function CharacterCard({
   onClick,
   showStats = true,
   size = "md",
+  className,
 }: CharacterCardProps) {
   const battlePower = calculateBattlePower(character);
 
@@ -104,6 +106,7 @@ export default function CharacterCard({
           "ring-2 ring-purple-400 ring-offset-2 ring-offset-background",
         !canAfford && "opacity-50 grayscale",
         character.gradient,
+        className,
       )}
       onClick={onClick}
     >

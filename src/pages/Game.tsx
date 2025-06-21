@@ -39,27 +39,9 @@ export default function Game() {
       startGame(deck);
     }
 
-    // Game loop for updates
-    let animationFrameId: number;
-    let lastTime = Date.now();
-
-    const gameLoop = () => {
-      const currentTime = Date.now();
-      const deltaTime = (currentTime - lastTime) / 1000;
-      lastTime = currentTime;
-
-      // The game engine update is handled internally
-      animationFrameId = requestAnimationFrame(gameLoop);
-    };
-
-    if (isInitialized) {
-      gameLoop();
-    }
-
+    // Game loop is now handled in useGame hook
     return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      // Cleanup is handled in useGame hook
     };
   }, [deck, navigate, isInitialized, startGame]);
 

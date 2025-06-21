@@ -1,19 +1,25 @@
 import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { gameEngine } from "@/lib/gameLogic";
-import { characters, Character, getCharacterById } from "@/lib/characters";
+import { Character, getCharacterById } from "@/lib/characters";
+import { useGame } from "@/hooks/useGame";
 import BattleArena from "@/components/game/BattleArena";
 import GameUI from "@/components/game/GameUI";
-import type { GameState } from "@/lib/gameLogic";
 
 export default function Game() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [gameState, setGameState] = useState<GameState>(gameEngine.getState());
+  const {
+    gameState,
+    isInitialized,
+    startGame,
+    placeCharacter,
+    pauseGame,
+    resumeGame,
+    resetGame,
+    canAffordCharacter,
+  } = useGame();
+
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
-    null,
-  );
-  const [selectedLane, setSelectedLane] = useState<"left" | "right" | null>(
     null,
   );
 
@@ -27,37 +33,42 @@ export default function Game() {
       return;
     }
 
-    // Start the game with the selected deck
-    gameEngine.startGame(deck);
+    // Start the game with the selected deck when component is initialized
+    if (isInitialized) {
+      startGame(deck);
+    }
 
-    // Subscribe to game state changes
-    const unsubscribe = gameEngine.subscribe(setGameState);
-
-    // Game loop
+    // Game loop for updates
+    let animationFrameId: number;
     let lastTime = Date.now();
+
     const gameLoop = () => {
       const currentTime = Date.now();
       const deltaTime = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
 
-      gameEngine.update(deltaTime);
-      requestAnimationFrame(gameLoop);
+      // The game engine update is handled internally
+      animationFrameId = requestAnimationFrame(gameLoop);
     };
 
-    gameLoop();
+    if (isInitialized) {
+      gameLoop();
+    }
 
     return () => {
-      unsubscribe();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
-  }, [deck, navigate]);
+  }, [deck, navigate, isInitialized, startGame]);
 
   const handleCharacterSelect = useCallback(
     (character: Character) => {
-      if (gameState.energy >= character.cost) {
+      if (canAffordCharacter(character)) {
         setSelectedCharacter(character);
       }
     },
-    [gameState.energy],
+    [canAffordCharacter],
   );
 
   const handleArenaClick = useCallback(
@@ -68,29 +79,28 @@ export default function Game() {
 
         // Only allow placement in player's half of the arena
         if (position.z < 0) {
-          const success = gameEngine.placeCharacter(selectedCharacter, lane);
+          const success = placeCharacter(selectedCharacter, lane);
           if (success) {
             setSelectedCharacter(null);
-            setSelectedLane(null);
           }
         }
       }
     },
-    [selectedCharacter, gameState.gameStatus],
+    [selectedCharacter, gameState.gameStatus, placeCharacter],
   );
 
   const handlePause = useCallback(() => {
-    gameEngine.pauseGame();
-  }, []);
+    pauseGame();
+  }, [pauseGame]);
 
   const handleResume = useCallback(() => {
-    gameEngine.resumeGame();
-  }, []);
+    resumeGame();
+  }, [resumeGame]);
 
   const handleReset = useCallback(() => {
-    gameEngine.resetGame();
+    resetGame();
     navigate("/");
-  }, [navigate]);
+  }, [resetGame, navigate]);
 
   // Get available characters from deck
   const availableCharacters = deck

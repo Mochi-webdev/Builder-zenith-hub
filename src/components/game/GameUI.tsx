@@ -8,6 +8,7 @@ import { Character, getCharacterById } from "@/lib/characters";
 import { GameState } from "@/lib/gameLogic";
 import CharacterCard from "./CharacterCard";
 import EnergyBar from "./EnergyBar";
+import TrophyDisplay from "./TrophyDisplay";
 import {
   Pause,
   Play,
@@ -55,23 +56,30 @@ export default function GameUI({
       {/* Top HUD */}
       <div className="absolute top-4 left-4 right-4 pointer-events-auto">
         <div className="flex items-center justify-between">
+          {/* Trophy Display */}
+          <div className="flex items-center gap-4">
+            <TrophyDisplay showProgress={false} />
+          </div>
           {/* Player Tower Health */}
-          <Card className="glass-effect p-3 flex items-center gap-3">
-            <Shield className="w-6 h-6 text-green-400" />
-            <div>
-              <div className="text-sm text-white/70">Player Tower</div>
-              <Progress
-                value={
-                  (playerTowerHealth.health / playerTowerHealth.maxHealth) * 100
-                }
-                className="w-32 h-2"
-                indicatorClassName="bg-green-400"
-              />
-              <div className="text-xs text-white/50">
-                {playerTowerHealth.health} / {playerTowerHealth.maxHealth}
+          <div className="flex items-center gap-4">
+            <Card className="glass-effect p-3 flex items-center gap-3">
+              <Shield className="w-6 h-6 text-green-400" />
+              <div>
+                <div className="text-sm text-white/70">Player Tower</div>
+                <Progress
+                  value={
+                    (playerTowerHealth.health / playerTowerHealth.maxHealth) *
+                    100
+                  }
+                  className="w-32 h-2"
+                  indicatorClassName="bg-green-400"
+                />
+                <div className="text-xs text-white/50">
+                  {playerTowerHealth.health} / {playerTowerHealth.maxHealth}
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
 
           {/* Game Stats */}
           <Card className="glass-effect p-3 flex items-center gap-6">

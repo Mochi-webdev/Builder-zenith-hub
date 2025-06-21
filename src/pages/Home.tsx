@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { characters, Character } from "@/lib/characters";
 import CharacterCard from "@/components/game/CharacterCard";
 import Tutorial from "@/components/game/Tutorial";
+import TrophyDisplay from "@/components/game/TrophyDisplay";
 import BackgroundMusic from "@/components/BackgroundMusic";
 import { useCharacterSelection } from "@/hooks/useCharacterSelection";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       <BackgroundMusic />
+
+      {/* Trophy Display in top left */}
+      <div className="absolute top-4 left-4 z-10">
+        <TrophyDisplay size="lg" />
+      </div>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 20 }, (_, i) => (

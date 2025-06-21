@@ -76,26 +76,27 @@ export default function ChestDisplay({ className }: ChestDisplayProps) {
   const canEarnMore = chestManager.canEarnChest();
 
   return (
-    <div className={cn("space-y-4", className)}>
-      <Card className="glass-effect p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Gift className="w-5 h-5 text-purple-400" />
-            <h3 className="text-lg font-bold text-white">Chests</h3>
+    <div className={cn("space-y-6", className)}>
+      <Card className="glass-effect p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Gift className="w-6 h-6 text-purple-400 anime-glow" />
+            <h3 className="text-xl font-bold text-white">Treasure Chests</h3>
           </div>
           <Badge
             variant={canEarnMore ? "outline" : "secondary"}
-            className={
+            className={cn(
+              "px-3 py-1 text-lg",
               canEarnMore
                 ? "text-green-400 border-green-400"
-                : "text-red-400 border-red-400"
-            }
+                : "text-red-400 border-red-400",
+            )}
           >
             {chests.length}/4
           </Badge>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, index) => {
             const chest = chests[index];
 
@@ -103,11 +104,11 @@ export default function ChestDisplay({ className }: ChestDisplayProps) {
               return (
                 <div
                   key={index}
-                  className="aspect-square border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center"
+                  className="aspect-square border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center min-h-32"
                 >
                   <div className="text-center text-gray-500">
-                    <Gift className="w-8 h-8 mx-auto mb-1 opacity-50" />
-                    <p className="text-xs">Empty Slot</p>
+                    <Gift className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Empty Slot</p>
                   </div>
                 </div>
               );
@@ -124,32 +125,37 @@ export default function ChestDisplay({ className }: ChestDisplayProps) {
               <Card
                 key={chest.id}
                 className={cn(
-                  "aspect-square p-3 cursor-pointer transition-all duration-300 hover:scale-105",
+                  "aspect-square p-4 cursor-pointer transition-all duration-300 hover:scale-105 min-h-32",
                   canOpen
-                    ? "glass-effect border-green-400 animate-pulse-glow"
+                    ? "glass-effect border-green-400 animate-pulse-glow shadow-lg shadow-green-400/30"
                     : "glass-effect border-gray-600",
                 )}
                 onClick={() => canOpen && handleOpenChest(chest)}
               >
                 <div className="h-full flex flex-col justify-between">
                   <div className="text-center">
-                    <div className="text-2xl mb-1">{chest.type.icon}</div>
-                    <p className={`text-xs font-semibold ${chest.type.color}`}>
-                      {chest.type.name}
+                    <div className="text-4xl mb-2 animate-character-hover">
+                      {chest.type.icon}
+                    </div>
+                    <p className={`text-sm font-bold ${chest.type.color}`}>
+                      {chest.type.name.split(" ")[0]}
+                    </p>
+                    <p className="text-xs text-white/60">
+                      {chest.type.cardCount} cards
                     </p>
                   </div>
 
                   {!canOpen && (
                     <div className="space-y-2">
-                      <Progress value={progress} className="h-1" />
+                      <Progress value={progress} className="h-2" />
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-white/70">
+                        <span className="text-white/70 font-mono">
                           {formatTime(timeLeft)}
                         </span>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-6 px-2 text-xs"
+                          className="h-6 px-2 text-xs glass-effect"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSpeedUp(chest);
@@ -163,7 +169,7 @@ export default function ChestDisplay({ className }: ChestDisplayProps) {
 
                   {canOpen && (
                     <div className="text-center">
-                      <p className="text-xs text-green-400 font-bold">
+                      <p className="text-sm text-green-400 font-bold animate-pulse">
                         TAP TO OPEN!
                       </p>
                     </div>

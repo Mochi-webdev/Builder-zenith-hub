@@ -57,16 +57,18 @@ export default function Game() {
   const handleArenaClick = useCallback(
     (position: { x: number; z: number }) => {
       if (selectedCharacter && gameState.gameStatus === "playing") {
-        // Determine lane based on click position
-        const lane = position.x < 0 ? "left" : "right";
-
-        // Only allow placement in player's half of the arena
+        // Only allow placement in player's half of the arena (z < 0)
         if (position.z < 0) {
+          // Determine lane based on click position
+          const lane = position.x < 0 ? "left" : "right";
           const success = placeCharacter(selectedCharacter, lane);
           if (success) {
             setSelectedCharacter(null);
           }
         }
+      } else if (selectedCharacter) {
+        // If character is selected but clicked outside valid area, cancel selection
+        setSelectedCharacter(null);
       }
     },
     [selectedCharacter, gameState.gameStatus, placeCharacter],
@@ -129,22 +131,6 @@ export default function Game() {
         onReset={handleReset}
         selectedCharacter={selectedCharacter}
       />
-
-      {/* Click Instructions */}
-      {selectedCharacter && gameState.gameStatus === "playing" && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <div className="glass-effect p-4 rounded-lg text-center">
-            <h3 className="text-white font-bold mb-2">Deploy Character</h3>
-            <p className="text-white/80 text-sm mb-2">
-              Click on your side of the arena (blue area) to deploy{" "}
-              {selectedCharacter.name}
-            </p>
-            <div className="text-xs text-white/60">
-              Cost: {selectedCharacter.cost} energy
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Loading Overlay */}
       {gameState.gameStatus === "menu" && (

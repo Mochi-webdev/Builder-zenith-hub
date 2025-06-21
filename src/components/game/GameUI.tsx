@@ -38,10 +38,6 @@ export default function GameUI({
   onReset,
   selectedCharacter,
 }: GameUIProps) {
-  const [selectedLane, setSelectedLane] = useState<"left" | "right" | null>(
-    null,
-  );
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -198,43 +194,21 @@ export default function GameUI({
         </div>
       </div>
 
-      {/* Lane Selection */}
+      {/* Deployment Instructions */}
       {selectedCharacter && (
-        <div className="absolute top-1/2 left-4 right-4 pointer-events-auto">
-          <Card className="glass-effect p-4 mx-auto w-fit">
-            <div className="text-center mb-3">
-              <h3 className="text-white font-bold mb-1">Choose Lane</h3>
-              <p className="text-white/70 text-sm">
-                Select a lane to deploy {selectedCharacter.name}
-              </p>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          <Card className="glass-effect p-4 text-center animate-pulse">
+            <h3 className="text-white font-bold mb-2">
+              Deploy {selectedCharacter.name}
+            </h3>
+            <p className="text-white/80 text-sm mb-2">
+              Click anywhere in the blue area to place your character
+            </p>
+            <div className="flex items-center justify-center gap-2 text-xs text-white/60">
+              <span>Cost: {selectedCharacter.cost} energy</span>
+              <span>•</span>
+              <span>Click to cancel</span>
             </div>
-            <div className="flex gap-4">
-              <Button
-                variant={selectedLane === "left" ? "default" : "outline"}
-                onClick={() => setSelectedLane("left")}
-                className="anime-button"
-              >
-                Left Lane
-              </Button>
-              <Button
-                variant={selectedLane === "right" ? "default" : "outline"}
-                onClick={() => setSelectedLane("right")}
-                className="anime-button"
-              >
-                Right Lane
-              </Button>
-            </div>
-            {selectedLane && (
-              <Button
-                className="anime-button w-full mt-3"
-                onClick={() => {
-                  // This would be handled by the parent component
-                  setSelectedLane(null);
-                }}
-              >
-                Deploy to {selectedLane} lane
-              </Button>
-            )}
           </Card>
         </div>
       )}

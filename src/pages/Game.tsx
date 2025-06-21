@@ -114,6 +114,8 @@ export default function Game() {
       <BattleArena
         playerUnits={gameState.playerUnits}
         enemyUnits={gameState.enemyUnits}
+        playerTowers={gameState.playerTowers}
+        enemyTowers={gameState.enemyTowers}
         onArenaClick={handleArenaClick}
       />
 

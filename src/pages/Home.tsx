@@ -7,6 +7,8 @@ import { characters, Character } from "@/lib/characters";
 import CharacterCard from "@/components/game/CharacterCard";
 import Tutorial from "@/components/game/Tutorial";
 import TrophyDisplay from "@/components/game/TrophyDisplay";
+import ChestDisplay from "@/components/game/ChestDisplay";
+import CardCollectionDisplay from "@/components/game/CardCollection";
 import BackgroundMusic from "@/components/BackgroundMusic";
 import { useCharacterSelection } from "@/hooks/useCharacterSelection";
 import { cn } from "@/lib/utils";
@@ -48,9 +50,15 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       <BackgroundMusic />
 
-      {/* Trophy Display in top left */}
-      <div className="absolute top-4 left-4 z-10">
-        <TrophyDisplay size="lg" />
+      {/* Top UI Elements */}
+      <div className="absolute top-4 left-4 right-4 z-10">
+        <div className="flex items-start justify-between">
+          <TrophyDisplay size="lg" />
+          <div className="flex gap-4">
+            <CardCollectionDisplay />
+            <ChestDisplay />
+          </div>
+        </div>
       </div>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">

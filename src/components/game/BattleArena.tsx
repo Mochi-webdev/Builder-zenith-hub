@@ -8,6 +8,7 @@ import {
 } from "@react-three/drei";
 import { Suspense, useRef, useMemo } from "react";
 import { GameUnit, Tower } from "@/lib/gameLogic";
+import { Enhanced3DCharacter } from "./Enhanced3DModels";
 import * as THREE from "three";
 
 interface BattleArenaProps {
@@ -355,12 +356,12 @@ export default function BattleArena({
 
           {/* Player Units */}
           {playerUnits.map((unit) => (
-            <CharacterModel key={unit.id} unit={unit} />
+            <Enhanced3DCharacter key={unit.id} unit={unit} />
           ))}
 
           {/* Enemy Units */}
           {enemyUnits.map((unit) => (
-            <CharacterModel key={unit.id} unit={unit} />
+            <Enhanced3DCharacter key={unit.id} unit={unit} />
           ))}
 
           {/* Controls */}

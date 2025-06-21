@@ -71,13 +71,19 @@ export default function ProgressMenu({ className }: ProgressMenuProps) {
   };
 
   const getMilestoneIcon = (trophies: number) => {
-    if (trophies >= 10000) return "🚀";
-    if (trophies >= 5000) return "👑";
-    if (trophies >= 2500) return "⭐";
-    if (trophies >= 1000) return "💎";
-    if (trophies >= 500) return "🥇";
-    if (trophies >= 100) return "🥈";
-    return "🥉";
+    if (trophies >= 20000) return "♾️"; // Infinity Nexus
+    if (trophies >= 15000) return "✨"; // Divine Sanctuary
+    if (trophies >= 10000) return "🌌"; // Cosmic Void
+    if (trophies >= 8000) return "⚡"; // Lightning Storm
+    if (trophies >= 6000) return "🌑"; // Shadow Realm
+    if (trophies >= 4000) return "☁️"; // Sky Temple
+    if (trophies >= 2500) return "🌋"; // Volcanic Crater
+    if (trophies >= 1500) return "🏔️"; // Frozen Peaks
+    if (trophies >= 1000) return "💎"; // Crystal Caverns
+    if (trophies >= 600) return "🏜️"; // Desert Ruins
+    if (trophies >= 300) return "⛰️"; // Mountain Pass
+    if (trophies >= 100) return "🌲"; // Forest Valley
+    return "🏃"; // Training Grounds
   };
 
   return (

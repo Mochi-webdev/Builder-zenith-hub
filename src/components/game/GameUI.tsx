@@ -48,8 +48,14 @@ export default function GameUI({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const playerTowerHealth = gameState.playerTowers[0];
-  const enemyTowerHealth = gameState.enemyTowers[0];
+  const playerKingTower = gameState.playerTowers.find((t) => t.type === "king");
+  const enemyKingTower = gameState.enemyTowers.find((t) => t.type === "king");
+  const playerSideTowers = gameState.playerTowers.filter(
+    (t) => t.type !== "king",
+  );
+  const enemySideTowers = gameState.enemyTowers.filter(
+    (t) => t.type !== "king",
+  );
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -60,25 +66,48 @@ export default function GameUI({
           <div className="flex items-center gap-4">
             <TrophyDisplay showProgress={false} />
           </div>
-          {/* Player Tower Health */}
-          <div className="flex items-center gap-4">
-            <Card className="glass-effect p-3 flex items-center gap-3">
-              <Shield className="w-6 h-6 text-green-400" />
-              <div>
-                <div className="text-sm text-white/70">Player Tower</div>
-                <Progress
-                  value={
-                    (playerTowerHealth.health / playerTowerHealth.maxHealth) *
-                    100
-                  }
-                  className="w-32 h-2"
-                  indicatorClassName="bg-green-400"
-                />
-                <div className="text-xs text-white/50">
-                  {playerTowerHealth.health} / {playerTowerHealth.maxHealth}
+          {/* Player Towers Health */}
+          <div className="flex items-center gap-2">
+            {/* King Tower */}
+            {playerKingTower && (
+              <Card className="glass-effect p-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-green-400" />
+                  <div>
+                    <div className="text-xs text-white/70">King</div>
+                    <Progress
+                      value={
+                        (playerKingTower.health / playerKingTower.maxHealth) *
+                        100
+                      }
+                      className="w-16 h-1"
+                      indicatorClassName="bg-green-400"
+                    />
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            )}
+
+            {/* Side Towers */}
+            {playerSideTowers.map((tower) => (
+              <Card key={tower.id} className="glass-effect p-2">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-3 h-3 rounded ${tower.isDestroyed ? "bg-red-400" : "bg-green-400"}`}
+                  />
+                  <div>
+                    <div className="text-xs text-white/70">{tower.type}</div>
+                    {!tower.isDestroyed && (
+                      <Progress
+                        value={(tower.health / tower.maxHealth) * 100}
+                        className="w-12 h-1"
+                        indicatorClassName="bg-green-400"
+                      />
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
 
           {/* Game Stats */}
@@ -124,23 +153,48 @@ export default function GameUI({
             </div>
           </Card>
 
-          {/* Enemy Tower Health */}
-          <Card className="glass-effect p-3 flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-sm text-white/70">Enemy Tower</div>
-              <Progress
-                value={
-                  (enemyTowerHealth.health / enemyTowerHealth.maxHealth) * 100
-                }
-                className="w-32 h-2"
-                indicatorClassName="bg-red-400"
-              />
-              <div className="text-xs text-white/50">
-                {enemyTowerHealth.health} / {enemyTowerHealth.maxHealth}
-              </div>
-            </div>
-            <Heart className="w-6 h-6 text-red-400" />
-          </Card>
+          {/* Enemy Towers Health */}
+          <div className="flex items-center gap-2">
+            {/* Side Towers */}
+            {enemySideTowers.map((tower) => (
+              <Card key={tower.id} className="glass-effect p-2">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <div className="text-xs text-white/70">{tower.type}</div>
+                    {!tower.isDestroyed && (
+                      <Progress
+                        value={(tower.health / tower.maxHealth) * 100}
+                        className="w-12 h-1"
+                        indicatorClassName="bg-red-400"
+                      />
+                    )}
+                  </div>
+                  <div
+                    className={`w-3 h-3 rounded ${tower.isDestroyed ? "bg-gray-400" : "bg-red-400"}`}
+                  />
+                </div>
+              </Card>
+            ))}
+
+            {/* King Tower */}
+            {enemyKingTower && (
+              <Card className="glass-effect p-2">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <div className="text-xs text-white/70">King</div>
+                    <Progress
+                      value={
+                        (enemyKingTower.health / enemyKingTower.maxHealth) * 100
+                      }
+                      className="w-16 h-1"
+                      indicatorClassName="bg-red-400"
+                    />
+                  </div>
+                  <Heart className="w-4 h-4 text-red-400" />
+                </div>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
 

@@ -17,10 +17,16 @@ export default function SimpleHome() {
         </p>
         <div className="space-y-4">
           <Button
-            onClick={() => navigate("/game")}
+            onClick={() => navigate("/home")}
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           >
-            Start Battle ⚔️
+            Full Game Menu 🏠
+          </Button>
+          <Button
+            onClick={() => navigate("/game")}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+          >
+            Quick Battle ⚔️
           </Button>
           <Button
             variant="outline"

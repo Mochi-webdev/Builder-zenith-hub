@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -417,7 +416,7 @@ export default function EnhancedCardCollection({
                   </div>
                 )}
 
-                <Separator className="my-4" />
+                <div className="border-t border-white/10 my-4" />
 
                 {/* Available Characters */}
                 <div>
@@ -544,7 +543,7 @@ export default function EnhancedCardCollection({
 
                       {!data.isMaxLevel && data.upgradeCost && (
                         <>
-                          <Separator />
+                          <div className="border-t border-white/10" />
 
                           {/* Upgrade Section */}
                           <div className="space-y-3">

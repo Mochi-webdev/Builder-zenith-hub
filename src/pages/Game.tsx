@@ -4,6 +4,7 @@ import { Character, getCharacterById } from "@/lib/characters";
 import { useGame } from "@/hooks/useGame";
 import BattleArena from "@/components/game/BattleArena";
 import GameUI from "@/components/game/GameUI";
+import BackgroundMusic from "@/components/BackgroundMusic";
 
 export default function Game() {
   const location = useLocation();
@@ -126,6 +127,7 @@ export default function Game() {
 
   return (
     <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900">
+      <BackgroundMusic />
       {/* 3D Battle Arena */}
       <BattleArena
         playerUnits={gameState.playerUnits}

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { characters, Character } from "@/lib/characters";
 import CharacterCard from "@/components/game/CharacterCard";
 import Tutorial from "@/components/game/Tutorial";
+import BackgroundMusic from "@/components/BackgroundMusic";
 import { useCharacterSelection } from "@/hooks/useCharacterSelection";
 import { cn } from "@/lib/utils";
 import {
@@ -44,6 +45,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      <BackgroundMusic />
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 20 }, (_, i) => (
